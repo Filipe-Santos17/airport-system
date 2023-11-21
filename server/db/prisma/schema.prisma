@@ -1,0 +1,77 @@
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Flight {
+  id             String         @id @default(uuid())
+  origin         String
+  destiny        String
+  departure_date DateTime
+  flight_number  String
+  created_at     DateTime       @default(now())
+  classes        Classe[]
+  flightTicket   flightTicket[]
+
+  @@map("flights")
+}
+
+model Classe {
+  id           Int    @id
+  type_class   String
+  number_seats Int
+  value_seats  Int
+  flight       Flight @relation(fields: [flightId], references: [id])
+  flightId     String
+
+  @@map("classes")
+}
+
+model City {
+  id              String    @id
+  name            String
+  federative_unit String
+  airports        Airport[]
+
+  @@map("citys")
+}
+
+model Airport {
+  id        String  @id @default(uuid())
+  city      City    @relation(fields: [city_id], references: [id])
+  city_id   String
+  iata      String
+  name      String
+  latitude  Decimal
+  longitude Decimal
+
+  @@map("airports")
+}
+
+model User {
+  id           String         @id @default(uuid())
+  nome         String
+  cpf          String         @unique
+  email        String         @unique
+  birthday     String
+  flightTicket flightTicket[]
+
+  @@map("users")
+}
+
+model flightTicket {
+  id          String @id @default(uuid())
+  user        User   @relation(fields: [user_id], references: [id])
+  user_id     String
+  seat_number String
+  flight      Flight @relation(fields: [flight_id], references: [id])
+  flight_id   String
+
+  @@map("flight tickets")
+}
